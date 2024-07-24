@@ -19,7 +19,7 @@ class Stock:
         if price <= 0:
             raise ValueError("Price must be greater than 0")
 
-        if (self.fixed_dividend <= 0.0) or (self.last_dividend <= 0):
+        if (self.fixed_dividend is not None and self.fixed_dividend <= 0.0) or (self.fixed_dividend is not None and self.last_dividend <= 0):
             return 0.0
 
         dividend_yield = (self.fixed_dividend * self.par_value) / price \
@@ -103,4 +103,4 @@ class GlobalBeverageCorporationExchange(StockMarket):
 
         prices = [self.calculate_VWSP(trade[1].stock.symbol, 0) for trade in self._trades]
         prod = np.prod(np.array(prices), axis=0)
-        return round(prod ** (1 / len(prices)), 4)
+        return float(round(prod ** (1 / len(prices)), 4))
