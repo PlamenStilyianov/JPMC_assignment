@@ -29,7 +29,7 @@ def stocks(stock_data):
 
 
 @pytest.fixture(scope='module')
-def stocks_missing_data(stock_data):
+def stocks_missing_data():
     stocks = []
     stocks.extend([Stock(symbol='TEA', par_value=100, stock_type='Common', last_dividend=0, fixed_dividend=None),
                    Stock(symbol='TEA', par_value=100, stock_type='Common', last_dividend=0),
