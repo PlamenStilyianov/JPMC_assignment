@@ -7,7 +7,8 @@ import numpy as np
 class Stock:
     """ Stock class used for calculating dividend yield and P/E ratio"""
 
-    def __init__(self, symbol: str, par_value: int, stock_type: str, last_dividend: int, fixed_dividend: float) -> None:
+    def __init__(self, symbol: str, par_value: int, stock_type: str, last_dividend: int = 0,
+                 fixed_dividend: float = 0.0) -> None:
         self.symbol = symbol
         self.par_value = par_value
         self.type = stock_type
@@ -19,7 +20,8 @@ class Stock:
         if price <= 0:
             raise ValueError("Price must be greater than 0")
 
-        if (self.fixed_dividend is not None and self.fixed_dividend <= 0.0) or (self.fixed_dividend is not None and self.last_dividend <= 0):
+        if (self.fixed_dividend is not None and self.fixed_dividend <= 0.0) or (
+                self.fixed_dividend is not None and self.last_dividend <= 0):
             return 0.0
 
         dividend_yield = (self.fixed_dividend * self.par_value) / price \
@@ -59,7 +61,7 @@ class StockMarket:
         self._trades: List[Tuple[datetime, Trade]] = StockMarket.__trades
 
     @classmethod
-    def book_trade(cls, stock: Stock, quantity: int, buy_or_sell: str, price: int) -> None:
+    def book_trade(cls, stock: Stock, buy_or_sell: str, quantity: int = 0, price: int = 0) -> None:
         """ Record a trade, with timestamp, quantity, buy or sell indicator and price. """
 
         if quantity < 1 or price < 1:
