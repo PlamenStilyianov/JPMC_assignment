@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 import numpy as np
 
@@ -8,7 +8,7 @@ class Stock:
     """ Stock class used for calculating dividend yield and P/E ratio"""
 
     def __init__(self, symbol: str, par_value: int, stock_type: str, last_dividend: int = 0,
-                 fixed_dividend: float = 0.0) -> None:
+                 fixed_dividend: Union[float, None] = 0.0) -> None:
         self.symbol = symbol
         self.par_value = par_value
         self.type = stock_type
@@ -20,14 +20,12 @@ class Stock:
         if price <= 0:
             raise ValueError("Price must be greater than 0")
 
-        if (self.fixed_dividend is not None and self.fixed_dividend <= 0.0 and self.type == 'Preferred' ) or (
-                self.fixed_dividend is not None and self.last_dividend <= 0 and self.type == 'Common'):
-            return 0.0
-
-        dividend_yield = (self.fixed_dividend * self.par_value) / price \
-            if self.type == 'Preferred' else (self.last_dividend / price)
-
-        return round(dividend_yield, 4)
+        if self.type == 'Preferred':
+            if self.fixed_dividend is not None:
+                return 0.0 if self.fixed_dividend <= 0.0 else round(((self.fixed_dividend * self.par_value) / price), 4)
+        else:
+            if self.last_dividend is not None:
+                return 0.0 if self.last_dividend <= 0.0 else round((self.last_dividend / price), 4)
 
     def get_pe_ratio(self, price: int) -> float:
         """ Calculate the P/E Ratio, given any price as input. """

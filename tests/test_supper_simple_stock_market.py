@@ -3,7 +3,8 @@ from unittest import mock
 import pandas as pd
 import pytest
 
-from trading.supper_simple_stock_market import Stock, Trade, StockMarket, GlobalBeverageCorporationExchange, datetime, timedelta
+from trading.supper_simple_stock_market import Stock, Trade, StockMarket, GlobalBeverageCorporationExchange, datetime, \
+    timedelta
 
 
 @pytest.fixture(scope='module')
@@ -20,12 +21,22 @@ def stock_data():
 def stocks(stock_data):
     gen_stock = []
     for _ in range(7):
-        stock = (
-        Stock(symbol=stock[0], par_value=stock[4], stock_type=stock[1], last_dividend=stock[2], fixed_dividend=stock[3])
-        for stock in stock_data)
+        stock = (Stock(symbol=stock[0], par_value=stock[4], stock_type=stock[1], last_dividend=stock[2],
+                       fixed_dividend=stock[3]) for stock in stock_data)
         gen_stock.append(stock)
 
     return gen_stock
+
+
+@pytest.fixture(scope='module')
+def stocks_missing_data(stock_data):
+    stocks = []
+    stocks.extend([Stock(symbol='TEA', par_value=100, stock_type='Common', last_dividend=0, fixed_dividend=None),
+                   Stock(symbol='TEA', par_value=100, stock_type='Common', last_dividend=0),
+                   Stock(symbol='GIN', par_value=100, stock_type='Preferred', last_dividend=0, fixed_dividend=0.03),
+                   Stock(symbol='GIN', par_value=100, stock_type='Preferred', last_dividend=0, fixed_dividend=0.0)
+                   ])
+    return stocks
 
 
 class TestStock:
@@ -66,6 +77,14 @@ class TestStock:
                 assert expected == round((stock.last_dividend / price), 4) if stock.type == 'Common' else \
                     (round((stock.fixed_dividend * stock.par_value) / price, 4))
             assert stock.get_dividend_yield(price) == expected
+
+    def test_get_dividend_yield_zero(self, stocks_missing_data):
+        """Test zero dividend yield"""
+        for stock in stocks_missing_data:
+            if stock.type == 'Common':
+                assert stock.get_dividend_yield(stock.par_value) == 0.0
+            if stock.type == 'Preferred':
+                assert stock.get_pe_ratio(stock.par_value) == 0.0
 
     @pytest.mark.parametrize("price, expected", [(110, 0.0),
                                                  (90, 11.25),
