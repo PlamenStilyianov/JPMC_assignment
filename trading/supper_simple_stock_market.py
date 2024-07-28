@@ -56,7 +56,7 @@ class StockMarket:
     __trades: List[Tuple[datetime, Trade]] = []
 
     def __init__(self):
-        self._trades: List[Tuple[datetime, Trade]] = StockMarket.__trades
+        self._trades: List[Tuple[datetime, Trade]] = self.__trades
 
     @classmethod
     def book_trade(cls, stock: Stock, buy_or_sell: str, quantity: int = 0, price: int = 0) -> None:
@@ -82,7 +82,7 @@ class StockMarket:
             trades = [trade[1] for trade in reversed(cls.__trades) if
                       trade[0] >= timestamp and trade[1].stock.symbol == symbol]
         else:
-            trades = [trade[1] for trade in StockMarket.__trades if trade[1].stock.symbol == symbol]
+            trades = [trade[1] for trade in cls.__trades if trade[1].stock.symbol == symbol]
 
         price_qty = sum([trade.price * trade.quantity for trade in trades])
         sum_qty = sum([trade.quantity for trade in trades])
