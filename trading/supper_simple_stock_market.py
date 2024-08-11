@@ -56,7 +56,12 @@ class StockMarket:
     __trades: List[Tuple[datetime, Trade]] = []
 
     def __init__(self):
-        self._trades: List[Tuple[datetime, Trade]] = self.__trades
+        super().__init__()
+
+    def __new__(cls, *args, **kwargs):
+        instance = super().__new__(cls)
+        instance._trades = cls.__trades
+        return instance
 
     @classmethod
     def book_trade(cls, stock: Stock, buy_or_sell: str, quantity: int = 0, price: int = 0) -> None:
@@ -101,6 +106,9 @@ class GlobalBeverageCorporationExchange(StockMarket):
         if len(self._trades) == 0:
             raise ValueError("No trades booked for this market")
 
-        prices = [self.calculate_VWSP(trade[1].stock.symbol, 0) for trade in self._trades]
+        # super._trades returns always all uptodate trades before the call,
+        # even booked by StockMarket after creating the exchange object
+        prices = [self.calculate_VWSP(trade[1].stock.symbol, 0) for trade in
+                  super().__new__(StockMarket)._trades]
         prod = np.prod(np.array(prices), axis=0)
         return float(round(prod ** (1 / len(prices)), 4))
